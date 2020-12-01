@@ -5,7 +5,7 @@
 #include <net/sock.h>
 #include <linux/netlink.h>
 
-#include "KernelMsgHandler.h"
+#include "../include/KernelMsgHandler.h"
 
 struct sock *nlsk = NULL;
 

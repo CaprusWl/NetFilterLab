@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define NETLINK_NET_FIRE_WALL 859
+#define NETLINK_NET_FIRE_WALL 17
 #define MSG_LEN	256
 
 char *default_data = "Netlink Test Default Data";

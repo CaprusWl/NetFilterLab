@@ -6,10 +6,14 @@
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
 
-#include "KernelMsgHandler.h"
+#include "../include/KernelMsgHandler.h"
+#include "../include/Datagram.h"
+#include "../include/Connection.h"
+#include "../include/Filter.h"
+#include "../include/Logger.h"
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("xsc");
+MODULE_AUTHOR("caprus");
 
 extern struct sock *nlsk;
 
@@ -21,7 +25,7 @@ unsigned int nf_hook_pre_routing(
     struct sk_buff *skb,
     const struct nf_hook_state *state
 ) {
-    return NF_DROP;
+    return NF_ACCEPT;
 }
 
 static void nfw_register_pre_routing(void) {
@@ -40,7 +44,35 @@ unsigned int nf_hook_local_in(
     struct sk_buff *skb,
     const struct nf_hook_state *state
 ) {
-    return NF_DROP;
+    // deny by default
+    int operation = NF_DROP;
+
+    DatagramPtr datagramPtr = (DatagramPtr) kmalloc(sizeof(struct Datagram), GFP_USER);
+    datagramPtr->skb = skb;
+    datagramPtr->state = state;
+
+    char* tmpStr = (char*) kmalloc(sizeof(char) * 100, GFP_USER);
+
+    // accept the datagram if the related connection has established
+    if (matchConnection(datagramPtr)) {
+        datagramToString(datagramPtr, tmpStr);
+        logd("match conn successfully", tmpStr);
+        operation = NF_ACCEPT;
+    }
+
+    datagramToString(datagramPtr, tmpStr);
+    logd("match conn failed", tmpStr);
+    // if the datagram is going to establish connection and pass the filter, accept it
+    if (isFirstDatagram(datagramPtr)) {
+        if (filterDatagram(HOOKTYPE_LOCAL_IN, datagramPtr)) {
+            datagramToString(datagramPtr, tmpStr);
+            logd("establish conn successfully", tmpStr);
+            operation = NF_ACCEPT;
+        }
+    }
+
+    kfree(tmpStr);
+    return operation;
 }
 
 static void nfw_register_local_in(void) {
@@ -59,7 +91,7 @@ unsigned int nf_hook_forward(
     struct sk_buff *skb,
     const struct nf_hook_state *state
 ) {
-    return NF_DROP;
+    return NF_ACCEPT;
 }
 
 static void nfw_register_forward(void) {
@@ -78,7 +110,7 @@ unsigned int nf_hook_local_out(
     struct sk_buff *skb,
     const struct nf_hook_state *state
 ) {
-    return NF_DROP;
+    return NF_ACCEPT;
 }
 
 static void nfw_register_local_out(void) {
@@ -97,7 +129,7 @@ unsigned int nf_hook_post_routing(
     struct sk_buff *skb,
     const struct nf_hook_state *state
 ) {
-    return NF_DROP;
+    return NF_ACCEPT;
 }
 
 static void nfw_register_post_routing(void) {
@@ -112,7 +144,7 @@ static void nfw_register_post_routing(void) {
 struct netlink_kernel_cfg nl_nfw_cfg = {
 	0,	//groups
 	0,	//flags
-	NULL,	//input
+	recvFromUser,	//input
 	NULL,	//cb_mutex
 	NULL,	//bind
 	NULL,	//unbind
