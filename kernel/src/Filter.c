@@ -90,7 +90,7 @@ void addFilter(int type, FilterPtr filterPtr) {
     }
     int filterSize = getFilterSizeByType(type);
     filters[filterSize] = filterPtr;
-    logi("addFilter", "add successfully");
+    logd("addFilter", "add successfully");
 }
 
 char isAny(char* str) {
@@ -158,10 +158,4 @@ char filterDatagram(int type, DatagramPtr datagramPtr) {
         establishConnection(datagramPtr);
     }
     return resCode;
-}
-
-FilterPtr convertStrToFilter(char* str) {
-    FilterPtr filterPtr = (FilterPtr) kmalloc(sizeof(struct Filter), GFP_USER);
-    // todo: convert String to Filter
-    return filterPtr;
 }

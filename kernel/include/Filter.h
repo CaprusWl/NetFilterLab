@@ -30,8 +30,6 @@ struct Filter {
 
 typedef struct Filter* FilterPtr;
 
-FilterPtr convertStrToFilter(char* str);
-
 // add a filter by client
 void addFilter(int type, FilterPtr filterPtr);
 

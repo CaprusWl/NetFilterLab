@@ -51,27 +51,22 @@ unsigned int nf_hook_local_in(
     datagramPtr->skb = skb;
     datagramPtr->state = state;
 
-    char* tmpStr = (char*) kmalloc(sizeof(char) * 100, GFP_USER);
-
     // accept the datagram if the related connection has established
     if (matchConnection(datagramPtr)) {
-        datagramToString(datagramPtr, tmpStr);
-        logd("match conn successfully", tmpStr);
+        printDatagramInfo(datagramPtr, "match connection successfully");
         operation = NF_ACCEPT;
     }
 
-    datagramToString(datagramPtr, tmpStr);
-    logd("match conn failed", tmpStr);
+    printDatagramInfo(datagramPtr, "match conn failed");
     // if the datagram is going to establish connection and pass the filter, accept it
     if (isFirstDatagram(datagramPtr)) {
         if (filterDatagram(HOOKTYPE_LOCAL_IN, datagramPtr)) {
-            datagramToString(datagramPtr, tmpStr);
-            logd("establish conn successfully", tmpStr);
+            printDatagramInfo(datagramPtr, "establish connection successfully");
             operation = NF_ACCEPT;
         }
     }
 
-    kfree(tmpStr);
+    printDatagramInfo(datagramPtr, "drop datagram");
     return operation;
 }
 

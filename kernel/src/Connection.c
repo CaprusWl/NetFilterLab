@@ -36,11 +36,6 @@ char establishConnection(DatagramPtr datagramPtr) {
         return 0;
     }
 
-    char* tmpStr = (char*) kmalloc(sizeof(char) * 100, GFP_USER);
-    datagramToString(datagramPtr, tmpStr);
-    printk("establish connection: %s", tmpStr);
-    kfree(tmpStr);
-
     convertDatagramToConnection(connectionPtr, datagramPtr);
     connections[connectionSize++] = connectionPtr;
     return 1;
@@ -71,15 +66,15 @@ char equals(ConnectionPtr ptr1, ConnectionPtr ptr2) {
 char matchConnection(DatagramPtr datagramPtr) {
     char resCode = 0;
 
-    ConnectionPtr tmpConnectionPtr = (ConnectionPtr) kmalloc(sizeof(struct Connection), GFP_USER);
-    convertDatagramToConnection(tmpConnectionPtr, datagramPtr);
-    int i = 0;
+    struct Connection connection;
+    convertDatagramToConnection(&connection, datagramPtr);
+
+    int i;
     for (i = 0; i < connectionSize; i++) {
-        if (equals(tmpConnectionPtr, connections[i])) {
+        if (equals(&connection, connections[i])) {
             resCode = 1;
         }
     }
 
-    kfree(tmpConnectionPtr);
     return resCode;
 }

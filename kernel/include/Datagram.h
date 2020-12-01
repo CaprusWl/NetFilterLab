@@ -20,7 +20,7 @@ struct Datagram {
 
 typedef struct Datagram *DatagramPtr;
 
-void datagramToString(DatagramPtr datagramPtr, char* destStr);
+void printDatagramInfo(DatagramPtr datagramPtr, char* context);
 
 // check if the datagram is going to establish connection
 char isFirstDatagram(DatagramPtr datagramPtr);
