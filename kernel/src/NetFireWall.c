@@ -44,9 +44,6 @@ unsigned int nf_hook_local_in(
     struct sk_buff *skb,
     const struct nf_hook_state *state
 ) {
-    // deny by default
-    int operation = NF_DROP;
-
     DatagramPtr datagramPtr = (DatagramPtr) kmalloc(sizeof(struct Datagram), GFP_USER);
     datagramPtr->skb = skb;
     datagramPtr->state = state;
@@ -54,7 +51,7 @@ unsigned int nf_hook_local_in(
     // accept the datagram if the related connection has established
     if (matchConnection(datagramPtr)) {
         printDatagramInfo(datagramPtr, "match connection successfully");
-        operation = NF_ACCEPT;
+        return NF_ACCEPT;
     }
 
     printDatagramInfo(datagramPtr, "match conn failed");
@@ -62,12 +59,13 @@ unsigned int nf_hook_local_in(
     if (isFirstDatagram(datagramPtr)) {
         if (filterDatagram(HOOKTYPE_LOCAL_IN, datagramPtr)) {
             printDatagramInfo(datagramPtr, "establish connection successfully");
-            operation = NF_ACCEPT;
+            return NF_ACCEPT;
         }
     }
 
+    // deny by default
     printDatagramInfo(datagramPtr, "drop datagram");
-    return operation;
+    return NF_DROP;
 }
 
 static void nfw_register_local_in(void) {

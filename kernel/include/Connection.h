@@ -13,7 +13,6 @@ struct Connection {
     unsigned int destAddr;
     int destPort;
     int proto;
-    char needLog;
 };
 
 typedef struct Connection *ConnectionPtr;

@@ -5,7 +5,9 @@
 #include <net/sock.h>
 #include <linux/netlink.h>
 
+#include "../include/Filter.h"
 #include "../include/KernelMsgHandler.h"
+#include "../include/FilterConvertor.h"
 
 struct sock *nlsk = NULL;
 
@@ -54,7 +56,10 @@ void recvFromUser(struct sk_buff *skb)
 
 	data = (char *) NLMSG_DATA(nlh);
 	printk("[kernel space] data receive from user: '%s'\n", data);
+
 	pid = nlh->nlmsg_pid;
+	FilterPtr filterPtr = convertStrToFilter(data);
+	addFilter(HOOKTYPE_LOCAL_IN, filterPtr);
 	printk("[kernel space] user_pid = %d\n", pid);
 	sendToUser(data, pid);
 }

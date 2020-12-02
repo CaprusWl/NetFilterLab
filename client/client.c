@@ -7,50 +7,56 @@
 #include <unistd.h>
 
 #include "Filter.h"
+#include "Utils.h"
 #include "FilterConvertor.h"
 
 #define NETLINK_NET_FIRE_WALL 17
 #define MSG_LEN	256
+#define MAX_FILTER_TABLE_SIZE 100
 
 void sendMessageToKernel(char* data);
 void setCustomFilter();
 void printFilterTable();
-unsigned int parseIPAddrFromStr(char* str);
 
-char *default_data = "Netlink Test Default Data";
+FilterPtr filterTable[MAX_FILTER_TABLE_SIZE];
+int filterTableSize = 0;
 
-struct FilterMsg {
+struct nl_msg {
 	struct nlmsghdr hdr;
 	char data[MSG_LEN];
 };
 
-struct u_packet_info {
-	struct nlmsghdr hdr;
-	char msg[MSG_LEN];
-};
-
 void setCustomFilter() {
-    struct Filter filter;
+    FilterPtr filter = (FilterPtr) malloc(sizeof(struct Filter));
     char addr[20];
 
     printf("\nset source ip (0 for any): ");
     scanf("%s", addr);
-    filter.sourceAddr = parseIPAddrFromStr(addr);
+    filter->sourceAddr = parseIPAddrFromStr(addr);
 
     printf("\nset source port (0 for any): ");
-    scanf("%d", &(filter.sourcePort));
+    scanf("%d", &(filter->sourcePort));
 
     printf("\nset destination ip (0 for any): ");
     scanf("%s", addr);
-    filter.destAddr = parseIPAddrFromStr(addr);
+    filter->destAddr = parseIPAddrFromStr(addr);
 
     printf("\nset destination port (0 for any): ");
-    scanf("%d", &(filter.destPort));
+    scanf("%d", &(filter->destPort));
+
+    char proto[10];
+    printf("\nset protocol (-1 for any): ");
+    scanf("%s", proto);
+    filter->proto = parseStrToIPProto(proto);
+
+    printf("\nset interface (any for any): ");
+    scanf("%s", filter->interface);
 
     printf("\nset permit (1 for permit, 0 for deny): ");
-    scanf("%d", &(filter.permit));
+    scanf("%d", &(filter->permit));
 
-    sendMessageToKernel(convertFilterToString(&filter));
+    sendMessageToKernel(convertFilterToString(filter));
+    filterTable[filterTableSize++] = filter;
 }
 
 int main()
@@ -75,6 +81,10 @@ int main()
 }
 
 void printFilterTable() {
+    int i;
+    for (int i = 0; i < filterTableSize; i++) {
+        printf("%d: %s\n", i, convertFilterToString(filterTable[i]));
+    }
 }
 
 void sendMessageToKernel(char* data) {
@@ -83,7 +93,7 @@ void sendMessageToKernel(char* data) {
     struct sockaddr_nl kpeer;
     int skfd, ret, kpeerlen = sizeof(struct sockaddr_nl);
     struct nlmsghdr *message;
-    struct u_packet_info info;
+    struct nl_msg info;
     char *retval;
 
     dlen = strlen(data) + 1;
@@ -107,7 +117,7 @@ void sendMessageToKernel(char* data) {
     kpeer.nl_pid = 0;
     kpeer.nl_groups = 0;
 
-    message = (struct nlmsghdr *) malloc(sizeof(struct FilterMsg));
+    message = (struct nlmsghdr *) malloc(sizeof(struct nl_msg));
     if (message == NULL) {
         printf("malloc() error\n");
         return;
@@ -129,24 +139,13 @@ void sendMessageToKernel(char* data) {
         exit(-1);
     }
 
-    ret = recvfrom(skfd, &info, sizeof(struct u_packet_info), 0, (struct sockaddr *) &kpeer, &kpeerlen);
+    ret = recvfrom(skfd, &info, sizeof(struct nl_msg), 0, (struct sockaddr *) &kpeer, &kpeerlen);
     if (!ret) {
         perror("recvfrom:");
         exit(-1);
     }
 
-    printf("message recvfrom kernel, content: '%s'\n", (char *) info.msg);
+    printf("message recvfrom kernel, content: '%s'\n", (char *) info.data);
 
     close(skfd);
-}
-
-unsigned int parseIPAddrFromStr(char* str) {
-    if (strcmp(str, "0") == 0) {
-        return 0;
-    }
-    int a, b, c, d;
-    char addr[4];
-    sscanf(str, "%d.%d.%d.%d", &a, &b, &c, &d);
-    addr[0] = a, addr[1] = b, addr[2] = c, addr[3] = d;
-    return *(unsigned int*)addr;
 }

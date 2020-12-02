@@ -3,12 +3,13 @@ MODULE_NAME := NetFireWallModule
 obj-m := $(MODULE_NAME).o
 $(MODULE_NAME)-objs := \
 	src/NetLinkMsgHandler.o \
-       	src/NetFireWall.o \
-       	src/Filter.o \
-       	src/Connection.o \
+    src/NetFireWall.o \
+    src/Filter.o \
+    src/FilterConvertor.o \
+    src/Connection.o \
 	src/Datagram.o \
-       	src/Logger.o \
-       	src/Utils.o
+    src/Logger.o \
+    src/Utils.o
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 

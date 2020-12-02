@@ -2,15 +2,16 @@
 // Created by caprus on 2020/11/26.
 //
 
-#include "../include/Utils.h"
+#include "Utils.h"
 
-#include <linux/kernel.h>
-#include <linux/ip.h>
-#include <linux/tcp.h>
-#include <linux/udp.h>
-#include <linux/string.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-unsigned int parseIPAddrFromStr(char* str) {
+#define IPPROTO_TCP 6 /* tcp */
+#define IPPROTO_UDP 17 /* user datagram protocol */
+
+unsigned int parseIPAddrFromStr(char *str) {
     if (strcmp(str, "0") == 0) {
         return 0;
     }
@@ -18,10 +19,10 @@ unsigned int parseIPAddrFromStr(char* str) {
     char addr[4];
     sscanf(str, "%d.%d.%d.%d", &a, &b, &c, &d);
     addr[0] = a, addr[1] = b, addr[2] = c, addr[3] = d;
-    return *(unsigned int*)addr;
+    return *(unsigned int *) addr;
 }
 
-char* parseIPAddrToStr(unsigned int ipAddr) {
+char *parseIPAddrToStr(unsigned int ipAddr) {
     if (ipAddr == 0) {
         return "0";
     }
@@ -31,14 +32,14 @@ char* parseIPAddrToStr(unsigned int ipAddr) {
     b = ipAddr >> 16;
     a = ipAddr >> 24;
 
-    char* str = kmalloc(sizeof(char) * 16, GFP_USER);
+    char *str = (char *) malloc(sizeof(char) * 16);
     sprintf(str, "%d.%d.%d.%d", a, b, c, d);
 
     return str;
 }
 
-char* parseIPProtoStr(int protoType) {
-    char* protoStr = kmalloc(sizeof(char) * 10, GFP_USER);
+char *parseIPProtoStr(int protoType) {
+    char *protoStr = (char *) malloc(sizeof(char) * 10);
     switch (protoType) {
         case IPPROTO_TCP:
             strcpy(protoStr, "tcp");

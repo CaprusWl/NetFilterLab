@@ -22,10 +22,12 @@ void convertDatagramToConnection(ConnectionPtr connectionPtr, DatagramPtr datagr
         struct tcphdr *tcpHead = (void *) ipHead + ipHead->ihl * 4;
         connectionPtr->sourcePort = tcpHead->source;
         connectionPtr->destPort = tcpHead->dest;
+        connectionPtr->proto = IPPROTO_TCP;
     } else if (ipHead->protocol == IPPROTO_UDP) {
         struct udphdr *udpHead = (void *) ipHead + ipHead->ihl * 4;
         connectionPtr->sourcePort = udpHead->source;
         connectionPtr->sourcePort = udpHead->dest;
+        connectionPtr->proto = IPPROTO_UDP;
     }
 }
 

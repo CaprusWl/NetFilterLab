@@ -11,6 +11,7 @@ struct Filter {
     unsigned int destAddr;
     int destPort;
     char interface[20];
+    int proto;
     char permit;
 };
 

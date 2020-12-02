@@ -82,6 +82,28 @@ int getFilterSizeByType(int type) {
     return targetSize;
 }
 
+void increaseFilterSizeByType(int type) {
+    switch (type) {
+        case HOOKTYPE_PRE_ROUTING:
+            preRoutingFilterSize++;
+            break;
+        case HOOKTYPE_LOCAL_IN:
+            localInFilterSize++;
+            break;
+        case HOOKTYPE_FORWARD:
+            forwardFilterSize++;
+            break;
+        case HOOKTYPE_LOCAL_OUT:
+            localOutFilterSize++;
+            break;
+        case HOOKTYPE_POST_ROUTING:
+            postRoutingFilterSize++;
+            break;
+        default:
+            break;
+    }
+}
+
 void addFilter(int type, FilterPtr filterPtr) {
     FilterPtr* filters = getFilterByType(type);
     if (filters == 0) {
@@ -90,6 +112,7 @@ void addFilter(int type, FilterPtr filterPtr) {
     }
     int filterSize = getFilterSizeByType(type);
     filters[filterSize] = filterPtr;
+    increaseFilterSizeByType(type);
     logd("addFilter", "add successfully");
 }
 
@@ -122,7 +145,12 @@ char matchFilter(FilterPtr filterPtr, DatagramPtr datagramPtr) {
         return 0;
     }
 
-    // 4. match source and destination port
+    // 4. match proto
+    if (filterPtr->proto != -1 && filterPtr->proto != ipHead->protocol) {
+        return 0;
+    }
+
+    // 5. match source and destination port
     struct tcphdr *tcpHead;
     if (ipHead->protocol == IPPROTO_TCP) {
         tcpHead = (void *) ipHead + ipHead->ihl * 4;
