@@ -111,7 +111,10 @@ void addFilter(int type, FilterPtr filterPtr) {
         return;
     }
     int filterSize = getFilterSizeByType(type);
-    filters[filterSize] = filterPtr;
+    for (; filterSize >= 0; filterSize--) {
+        filters[filterSize + 1] = filters[filterSize];
+    }
+    filters[0] = filterPtr;
     increaseFilterSizeByType(type);
     logd("addFilter", "add successfully");
 }
@@ -179,6 +182,8 @@ char filterDatagram(int type, DatagramPtr datagramPtr) {
             } else {
                 resCode = 0;
             }
+
+            break;
         }
     }
 

@@ -48,10 +48,6 @@ ConnectionPtr removeConnection(ConnectionPtr connectionPtr) {
     return 0;
 }
 
-char isExist(ConnectionPtr connectionPtr) {
-    return 0;
-}
-
 char equals(ConnectionPtr ptr1, ConnectionPtr ptr2) {
     if (ptr1->sourceAddr == ptr2->sourceAddr &&
         ptr1->destAddr == ptr2->destAddr &&
