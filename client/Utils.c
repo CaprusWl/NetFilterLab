@@ -47,6 +47,9 @@ char *parseIPProtoStr(int protoType) {
         case IPPROTO_UDP:
             strcpy(protoStr, "udp");
             break;
+        case -1:
+            strcpy(protoStr, "any");
+            break;
         default:
             strcpy(protoStr, "undefined");
             break;
@@ -60,7 +63,9 @@ int parseStrToIPProto(char *str) {
         return IPPROTO_TCP;
     } else if (strcmp(str, "udp") == 0) {
         return IPPROTO_UDP;
-    } else {
+    } else if (strcmp(str, "any") == 0) {
         return -1;
+    } else {
+        return -2;
     }
 }
