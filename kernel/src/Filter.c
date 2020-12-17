@@ -183,6 +183,8 @@ char filterDatagram(int type, DatagramPtr datagramPtr) {
                 resCode = 0;
             }
 
+            printk("match success: resCode: %d\n", resCode);
+
             break;
         }
     }

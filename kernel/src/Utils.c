@@ -32,7 +32,7 @@ char* parseIPAddrToStr(unsigned int ipAddr) {
     a = ipAddr >> 24;
 
     char* str = kmalloc(sizeof(char) * 16, GFP_USER);
-    sprintf(str, "%d.%d.%d.%d", a, b, c, d);
+    sprintf(str, "%d.%d.%d.%d", d, c, b, a);
 
     return str;
 }

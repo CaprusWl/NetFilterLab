@@ -45,7 +45,7 @@ void setCustomFilter() {
     scanf("%d", &(filter->destPort));
 
     char proto[10];
-    printf("\nset protocol (-1 for any): ");
+    printf("\nset protocol (any for any): ");
     scanf("%s", proto);
     filter->proto = parseStrToIPProto(proto);
 
