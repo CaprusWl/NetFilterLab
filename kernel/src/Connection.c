@@ -10,8 +10,15 @@
 #include <linux/tcp.h>
 #include <linux/udp.h>
 
-ConnectionPtr connections[500];
-int connectionSize = 0;
+#define MAX_HASH_SIZE 0x7fffffff
+#define MAX_KEY_SIZE 31
+
+ConnectionPtr connections[MAX_KEY_SIZE][50];
+int connectionSize[MAX_KEY_SIZE];
+int totalConnectionSize = 0;
+
+int hashCode(ConnectionPtr connectionPtr);
+char equals(ConnectionPtr ptr1, ConnectionPtr ptr2);
 
 void convertDatagramToConnection(ConnectionPtr connectionPtr, DatagramPtr datagramPtr) {
     struct iphdr *ipHead = ip_hdr(datagramPtr->skb);
@@ -39,7 +46,11 @@ char establishConnection(DatagramPtr datagramPtr) {
     }
 
     convertDatagramToConnection(connectionPtr, datagramPtr);
-    connections[connectionSize++] = connectionPtr;
+
+    int key = hashCode(connectionPtr) % MAX_KEY_SIZE;
+    connections[key][connectionSize[key]] = connectionPtr;
+    connectionSize[key]++;
+    totalConnectionSize++;
     return 1;
 }
 
@@ -61,15 +72,28 @@ char equals(ConnectionPtr ptr1, ConnectionPtr ptr2) {
     return 0;
 }
 
+int hashCode(ConnectionPtr ptr) {
+    int hashCode = 0;
+    hashCode += (33 * hashCode + (ptr->sourceAddr % MAX_HASH_SIZE)) % MAX_HASH_SIZE;
+    hashCode += (33 * hashCode + (ptr->sourcePort % MAX_HASH_SIZE)) % MAX_HASH_SIZE;
+    hashCode += (33 * hashCode + (ptr->destAddr % MAX_HASH_SIZE)) % MAX_HASH_SIZE;
+    hashCode += (33 * hashCode + (ptr->destPort % MAX_HASH_SIZE)) % MAX_HASH_SIZE;
+    hashCode += (33 * hashCode + (ptr->proto % MAX_HASH_SIZE)) % MAX_HASH_SIZE;
+
+    return hashCode;
+}
+
 char matchConnection(DatagramPtr datagramPtr) {
     char resCode = 0;
 
     struct Connection connection;
     convertDatagramToConnection(&connection, datagramPtr);
 
+    int key = hashCode(&connection) % MAX_KEY_SIZE;
+
     int i;
-    for (i = 0; i < connectionSize; i++) {
-        if (equals(&connection, connections[i])) {
+    for (i = 0; i < connectionSize[key]; i++) {
+        if (equals(&connection, connections[key][i])) {
             resCode = 1;
         }
     }
