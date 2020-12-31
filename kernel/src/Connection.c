@@ -10,10 +10,10 @@
 #include <linux/tcp.h>
 #include <linux/udp.h>
 
-#define MAX_HASH_SIZE 0x7fffffff
+#define MAX_HASH_SIZE 0x7fffff
 #define MAX_KEY_SIZE 31
 
-ConnectionPtr connections[MAX_KEY_SIZE][50];
+ConnectionPtr connections[MAX_KEY_SIZE][500];
 int connectionSize[MAX_KEY_SIZE];
 int totalConnectionSize = 0;
 
@@ -25,15 +25,13 @@ void convertDatagramToConnection(ConnectionPtr connectionPtr, DatagramPtr datagr
     connectionPtr->sourceAddr = ipHead->saddr;
     connectionPtr->destAddr = ipHead->daddr;
 
+    struct tcphdr *tcpHead = (void *) ipHead + ipHead->ihl * 4;
+    connectionPtr->sourcePort = tcpHead->source;
+    connectionPtr->destPort = tcpHead->dest;
+
     if (ipHead->protocol == IPPROTO_TCP) {
-        struct tcphdr *tcpHead = (void *) ipHead + ipHead->ihl * 4;
-        connectionPtr->sourcePort = tcpHead->source;
-        connectionPtr->destPort = tcpHead->dest;
         connectionPtr->proto = IPPROTO_TCP;
     } else if (ipHead->protocol == IPPROTO_UDP) {
-        struct udphdr *udpHead = (void *) ipHead + ipHead->ihl * 4;
-        connectionPtr->sourcePort = udpHead->source;
-        connectionPtr->sourcePort = udpHead->dest;
         connectionPtr->proto = IPPROTO_UDP;
     }
 }

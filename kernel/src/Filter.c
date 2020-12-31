@@ -155,14 +155,12 @@ char matchFilter(FilterPtr filterPtr, DatagramPtr datagramPtr) {
 
     // 5. match source and destination port
     struct tcphdr *tcpHead;
-    if (ipHead->protocol == IPPROTO_TCP) {
-        tcpHead = (void *) ipHead + ipHead->ihl * 4;
-        if (filterPtr->sourcePort != 0 && filterPtr->sourcePort != tcpHead->source) {
-            return 0;
-        }
-        if (filterPtr->destPort != 0 && filterPtr->destPort != tcpHead->dest) {
-            return 0;
-        }
+    tcpHead = (void *) ipHead + ipHead->ihl * 4;
+    if (filterPtr->sourcePort != 0 && filterPtr->sourcePort != tcpHead->source) {
+        return 0;
+    }
+    if (filterPtr->destPort != 0 && filterPtr->destPort != tcpHead->dest) {
+        return 0;
     }
 
     return 1;
