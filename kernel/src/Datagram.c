@@ -20,7 +20,11 @@ void printDatagramInfo(DatagramPtr datagramPtr, char *context) {
     char* dip = parseIPAddrToStr(ipHead->daddr);
     char* protoStr = parseIPProtoStr(ipHead->protocol);
 
-    sprintf(infoStr, "DatagramInfo: sip: %s, dip: %s, proto: %s\n", sip, dip, protoStr);
+    struct tcphdr *tcpHead = (void *) ipHead + ipHead->ihl * 4;
+    int sport = tcpHead->source;
+    int dport = tcpHead->dest;
+
+    sprintf(infoStr, "DatagramInfo: sip: %s, dip: %s, sport: %d, dport:%d, proto: %s\n", sip, dip, sport, dport, protoStr);
     logd(context, infoStr);
 }
 

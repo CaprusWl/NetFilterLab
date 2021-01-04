@@ -52,11 +52,19 @@ char establishConnection(DatagramPtr datagramPtr) {
     return 1;
 }
 
+void clearConnection(void) {
+    int i;
+    for (i = 0; i < MAX_KEY_SIZE; i++) {
+        connectionSize[i] = 0;
+    }
+}
+
 // return the pointer of the removed connection
 ConnectionPtr removeConnection(ConnectionPtr connectionPtr) {
     return 0;
 }
 
+// return true if is same connection
 char equals(ConnectionPtr ptr1, ConnectionPtr ptr2) {
     if (ptr1->sourceAddr == ptr2->sourceAddr &&
         ptr1->destAddr == ptr2->destAddr &&
@@ -70,6 +78,7 @@ char equals(ConnectionPtr ptr1, ConnectionPtr ptr2) {
     return 0;
 }
 
+// return hash code of a connection
 int hashCode(ConnectionPtr ptr) {
     int hashCode = 0;
     hashCode += (33 * hashCode + (ptr->sourceAddr % MAX_HASH_SIZE)) % MAX_HASH_SIZE;
@@ -81,6 +90,7 @@ int hashCode(ConnectionPtr ptr) {
     return hashCode;
 }
 
+// match connection with hash table
 char matchConnection(DatagramPtr datagramPtr) {
     char resCode = 0;
 

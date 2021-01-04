@@ -116,6 +116,7 @@ void addFilter(int type, FilterPtr filterPtr) {
     }
     filters[0] = filterPtr;
     increaseFilterSizeByType(type);
+    clearConnection();
     logd("addFilter", "add successfully");
 }
 
