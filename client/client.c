@@ -15,6 +15,7 @@
 #define MAX_FILTER_TABLE_SIZE 100
 
 void sendMessageToKernel(char* data);
+void removeFilter(int index);
 void setCustomFilter();
 void printFilterTable();
 
@@ -62,22 +63,39 @@ void setCustomFilter() {
 int main()
 {
     printf("Welcome to use NetFireWall\n");
-    printf("Please make your choice: (1) set a filter (2) print filter table (3) exit\n");
+    printf("Please make your choice: (1) set a filter (2) print filter table (3) remove a filter (4) exit\n");
     int choice = 0;
     scanf("%d", &choice);
-    while (choice != 3) {
+    while (choice != 4) {
         if (choice == 1) {
             setCustomFilter();
         } else if (choice == 2) {
             printFilterTable();
+        } else if (choice == 3){
+            int index;
+            printFilterTable();
+            scanf("%d", &index);
+            removeFilter(index);
         } else {
             printf("Not support\n");
         }
 
-        printf("Please make your choice: (1) set a filter (2) print filter table (3) exit\n");
+        printf("Please make your choice: (1) set a filter (2) print filter table (3) remove a filter (4) exit\n");
         scanf("%d", &choice);
     }
 	return 0;
+}
+
+void removeFilter(int index) {
+    char removeCmd[20];
+    sprintf(removeCmd, "3: %d", index);
+    sendMessageToKernel(removeCmd);
+
+    for (; index + 1 < filterTableSize; index++) {
+        filterTable[index] = filterTable[index + 1];
+    }
+
+    filterTableSize--;
 }
 
 void printFilterTable() {

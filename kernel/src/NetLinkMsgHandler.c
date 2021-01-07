@@ -56,11 +56,15 @@ void recvFromUser(struct sk_buff *skb)
 
 	data = (char *) NLMSG_DATA(nlh);
 	printk("[kernel space] data receive from user: '%s'\n", data);
+    pid = nlh->nlmsg_pid;
+    printk("[kernel space] user_pid = %d\n", pid);
+    sendToUser(data, pid);
 
-	pid = nlh->nlmsg_pid;
-	FilterPtr filterPtr = convertStrToFilter(data);
-	addFilter(HOOKTYPE_LOCAL_IN, filterPtr);
-	printk("[kernel space] user_pid = %d\n", pid);
-	sendToUser(data, pid);
+	if (data[0] == '3') {
+	    removeFilter(HOOKTYPE_LOCAL_IN, data[3] - '0');
+	} else {
+        FilterPtr filterPtr = convertStrToFilter(data);
+        addFilter(HOOKTYPE_LOCAL_IN, filterPtr);
+	}
 }
 

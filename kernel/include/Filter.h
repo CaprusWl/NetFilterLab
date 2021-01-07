@@ -37,4 +37,6 @@ void addFilter(int type, FilterPtr filterPtr);
 // return true if datagram is permitted
 char filterDatagram(int type, DatagramPtr datagramPtr);
 
+void removeFilter(int type, int index);
+
 #endif //NETFIREWALL_FILTER_H

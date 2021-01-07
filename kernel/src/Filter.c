@@ -104,6 +104,28 @@ void increaseFilterSizeByType(int type) {
     }
 }
 
+void decreaseFilterSizeByType(int type) {
+    switch (type) {
+        case HOOKTYPE_PRE_ROUTING:
+            preRoutingFilterSize--;
+            break;
+        case HOOKTYPE_LOCAL_IN:
+            localInFilterSize--;
+            break;
+        case HOOKTYPE_FORWARD:
+            forwardFilterSize--;
+            break;
+        case HOOKTYPE_LOCAL_OUT:
+            localOutFilterSize--;
+            break;
+        case HOOKTYPE_POST_ROUTING:
+            postRoutingFilterSize--;
+            break;
+        default:
+            break;
+    }
+}
+
 void addFilter(int type, FilterPtr filterPtr) {
     FilterPtr* filters = getFilterByType(type);
     if (filters == 0) {
@@ -118,6 +140,23 @@ void addFilter(int type, FilterPtr filterPtr) {
     increaseFilterSizeByType(type);
     clearConnection();
     logd("addFilter", "add successfully");
+}
+
+void removeFilter(int type, int index) {
+    FilterPtr* filters = getFilterByType(type);
+    if (filters == 0) {
+        loge("addFilter", "target filter is null");
+        return;
+    }
+    int filterSize = getFilterSizeByType(type);
+    if (index > filterSize - 1) {
+        return;
+    }
+    for (; index + 1 < filterSize; index++) {
+        filters[index] = filters[index + 1];
+    }
+    decreaseFilterSizeByType(type);
+    clearConnection();
 }
 
 char isAny(char* str) {
