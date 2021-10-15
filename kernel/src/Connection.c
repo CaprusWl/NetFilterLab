@@ -59,11 +59,6 @@ void clearConnection(void) {
     }
 }
 
-// return the pointer of the removed connection
-ConnectionPtr removeConnection(ConnectionPtr connectionPtr) {
-    return 0;
-}
-
 // return true if is same connection
 char equals(ConnectionPtr ptr1, ConnectionPtr ptr2) {
     if (ptr1->sourceAddr == ptr2->sourceAddr &&

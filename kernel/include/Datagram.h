@@ -20,9 +20,10 @@ struct Datagram {
 
 typedef struct Datagram *DatagramPtr;
 
+// 打印报文信息
 void printDatagramInfo(DatagramPtr datagramPtr, char* context);
 
-// check if the datagram is going to establish connection
+// 是否是建立连接的报文，返回'1'表示是
 char isFirstDatagram(DatagramPtr datagramPtr);
 
 #endif //NETFIREWALL_DATAGRAM_H

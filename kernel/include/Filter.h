@@ -20,23 +20,24 @@
 #include "Datagram.h"
 
 struct Filter {
-    unsigned int sourceAddr;
-    int sourcePort;
-    unsigned int destAddr;
-    int destPort;
-    char interface[20];
-    int proto;
-    char permit;
+    unsigned int sourceAddr;    // 源ip
+    int sourcePort;             // 源端口
+    unsigned int destAddr;      // 目的ip
+    int destPort;               // 目的端口
+    char interface[20];         // 网卡接口
+    int proto;                  // 网络协议
+    char permit;                // 是否放行
 };
 
 typedef struct Filter* FilterPtr;
 
-// add a filter by client
+// 添加一个规则项
 void addFilter(int type, FilterPtr filterPtr);
 
-// return true if datagram is permitted
+// 过滤报文，返回'1'表示该报文可以通过
 char filterDatagram(int type, DatagramPtr datagramPtr);
 
+// 删除指定规则项
 void removeFilter(int type, int index);
 
 #endif //NETFIREWALL_FILTER_H
